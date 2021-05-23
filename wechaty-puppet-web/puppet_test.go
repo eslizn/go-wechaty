@@ -5,18 +5,18 @@ import (
 	"time"
 )
 
-func TestPuppetWeb_Protocol(t *testing.T) {
+func TestPuppetWeb(t *testing.T) {
 	p, err := NewPuppetWeb(nil)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = p.jsLogin()
+	err = p.getUUID()
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Log(p.qrCodeUrl())
+	t.Log(p.getQRCodeUrl())
 	//png, err := qrcode.Encode(p.qrCodeUrl(), qrcode.Medium, 256)
 	//if err != nil {
 	//	t.Error(err)
@@ -42,9 +42,10 @@ func TestPuppetWeb_Protocol(t *testing.T) {
 		return
 	}
 	time.Sleep(time.Second)
-	err = p.init()
+	resp, err := p.init()
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	t.Logf("%+v\n", resp)
 }

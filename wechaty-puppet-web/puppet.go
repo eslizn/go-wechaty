@@ -58,7 +58,7 @@ func NewPuppetWeb(o *Option) (*PuppetWeb, error) {
 		},
 	}
 	if len(puppetWeb.option.DeviceID) < 1 {
-		puppetWeb.option.DeviceID = puppetWeb.mockDeviceID()
+		puppetWeb.option.DeviceID = puppetWeb.makeDeviceID()
 	}
 	puppetWeb.client.Jar, err = cookiejar.New(nil)
 	if err != nil {
@@ -394,4 +394,9 @@ func (p *PuppetWeb) TagContactDelete(id string) (err error) {
 func (p *PuppetWeb) TagContactList(contactID string) ([]string, error) {
 	log.Printf("PuppetWeb TagContactList(%s)\n", contactID)
 	return nil, nil
+}
+
+// MessageRawMiniProgramPayload ...
+func (p *PuppetWeb) MessageRawMiniProgramPayload(messageID string) (*schemas.MiniProgramPayload, error) {
+	panic("implement me")
 }

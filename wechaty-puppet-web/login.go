@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,7 +13,28 @@ import (
 	"time"
 )
 
-//get uuid
+type xmlTicket struct {
+	XMLName     xml.Name `xml:"error"`
+	Ret         int      `xml:"ret"`
+	Message     string   `xml:"message"`
+	Skey        string   `xml:"skey"`
+	Wxsid       string   `xml:"wxsid"`
+	Wxuin       string   `xml:"wxuin"`
+	PassTicket  string   `xml:"pass_ticket"`
+	IsGrayscale int      `xml:"isgrayscale"`
+}
+
+func (p *PuppetWeb) makeDeviceID() string {
+	sets := []byte("0123456789qwertyuiopasdfghjklzxcvbnm")
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < 15; i++ {
+		result = append(result, sets[r.Intn(len(sets))])
+	}
+	return "e" + string(result)
+}
+
+// getUUID get uuid from new login page
 func (p *PuppetWeb) getUUID() error {
 	req, err := http.NewRequest("GET", (&url.URL{
 		Scheme: "https",
@@ -50,8 +72,8 @@ func (p *PuppetWeb) getUUID() error {
 	return nil
 }
 
-//login qrcode url
-func (p *PuppetWeb) qrCodeUrl() string {
+// getQRCodeUrl get qrcode url
+func (p *PuppetWeb) getQRCodeUrl() string {
 	return (&url.URL{
 		Scheme: "https",
 		Host:   "login.weixin.qq.com",
@@ -59,9 +81,9 @@ func (p *PuppetWeb) qrCodeUrl() string {
 	}).String()
 }
 
-//get qrcode data
-func (p *PuppetWeb) qrCode() ([]byte, error) {
-	req, err := http.NewRequest("GET", p.qrCodeUrl(), nil)
+// getQRCode get qrcode data
+func (p *PuppetWeb) getQRCode() ([]byte, error) {
+	req, err := http.NewRequest("GET", p.getQRCodeUrl(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +95,8 @@ func (p *PuppetWeb) qrCode() ([]byte, error) {
 	return ioutil.ReadAll(rsp.Body)
 }
 
-//scan login
-func (p *PuppetWeb) login(tip string) error {
+// login
+func (p *PuppetWeb) login(tip string) error { //tip 1:未扫描 0:已扫描
 	req, err := http.NewRequest("GET", (&url.URL{
 		Scheme: "https",
 		Host:   "login.weixin.qq.com",
